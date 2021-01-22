@@ -215,7 +215,7 @@ def run_experiments(envir, policy, number_exp):
     
     all_rewards = []
     all_timesteps = []
-    for n in range(number_exp):
+    for _ in range(number_exp):
         
         final_reward = run_single_exp(envir, policy)
         all_rewards.append(final_reward)
