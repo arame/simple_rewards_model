@@ -46,6 +46,7 @@ class Dungeon:
         
         new_x, new_y = self.new_position_agent
         new_state = int(self.dungeon[new_x][new_y])
+        print("agent = ", self.position_agent)
         if new_state != self.OBSTACLE:
             # Return cell to previous value as the agent moves
             self.dungeon[curr_x][curr_y] = self.prev_agent_content
@@ -53,7 +54,10 @@ class Dungeon:
             # Put agent on the new cell
             self.dungeon[new_x][new_y] = self.AGENT
             self.position_agent = self.new_position_agent
-
+        print("new agent = ", self.position_agent)
+        print("action = ", action)
+        print("exit = ", self.position_exit)
+        self.display()
         # calculate reward
         reward = self.rewards[new_state]
 

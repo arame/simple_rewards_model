@@ -88,16 +88,39 @@ def main():
 # We advise you to start with a very simple policy, then maybe try a random policy, and finally an 'intelligent' policy.
 # 
 
-def basic_policy(observation):
+def basic_policy(observation, envir):
     action = "up"
     return action
 
-def random_policy(observation):
+def random_policy(observation, envir):
     actions = ["up", "down", "left", "right"]
     upper = len(actions) - 1
     index = random.randint(0, upper)
     action = actions[index]
     return action
+
+def _get_order_of_comparisons(envir):
+    _UP = 0
+    _DOWN = 1
+    _LEFT = 2
+    _RIGHT = 3
+    a_x, a_y = envir.position_agent
+    exit_x, exit_y = envir.position_exit
+    x = exit_x - a_x
+    y = exit_y - a_y
+    _idx = np.zeros(4, dtype=int)
+    if np.abs(x) > np.abs(y):
+        _idx[0] = _DOWN if x > 0 else _UP
+        _idx[2] = _UP if x > 0 else _DOWN
+        _idx[1] = _RIGHT if y > 0 else _LEFT
+        _idx[3] = _LEFT if y > 0 else _RIGHT
+    else:
+        _idx[0] = _RIGHT if y > 0 else _LEFT
+        _idx[2] = _LEFT if y > 0 else _RIGHT
+        _idx[1] = _DOWN if x > 0 else _UP
+        _idx[3] = _UP if x > 0 else _DOWN
+
+    return _idx
 
 def _check_obs_up(type, obs_up):
     if obs_up == type:
@@ -119,7 +142,7 @@ def _check_obs_right(type, obs_right):
         return "right"
     return ""
     
-def intelligent_policy(observation):
+def intelligent_policy(observation, envir):
     EMPTY = 0
     OBSTACLE = 1
     LAVA = 2
@@ -148,8 +171,9 @@ def intelligent_policy(observation):
     # So the sequence of checks are randomised to prevent this bias.
     select_check = [_check_obs_up, _check_obs_down, _check_obs_left, _check_obs_right]
     select_param = [obs_up, obs_down, obs_left, obs_right]
-    _idx = list(range(0, 4))
-    random.shuffle(_idx)
+    """     _idx = list(range(0, 4))
+    random.shuffle(_idx) """
+    _idx = _get_order_of_comparisons(envir)
     action = ""
     for idx in _idx:
         _function = select_check[idx]
@@ -169,7 +193,7 @@ def intelligent_policy(observation):
         return "left"
     if obs_right == LAVA:
         return "right"
-    return random_policy(observation)   # Agent is surrounded by obstacles and cannot move! 
+    return random_policy(observation, envir)   # Agent is surrounded by obstacles and cannot move! 
 
 # # Part 3a - Evaluating your policy
 # 
@@ -188,11 +212,11 @@ def run_single_exp(envir, policy):
     done = False
     total_reward = 0
     while not done:
-        action = policy(obs)
+        action = policy(obs, envir)
         print("action = ", action)
         obs, reward, done = envir.step(action)
         total_reward += reward
-        envir.display()
+        #envir.display()
     
     return total_reward
 
